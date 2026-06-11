@@ -1,0 +1,3902 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>SALIN-LAHI — Olongapo City Heritage</title>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#bd001a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SALIN-LAHI" />
+    <link rel="apple-touch-icon" href="qr-code.png" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,900&family=Bricolage+Grotesque:wght@400;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=Material+Symbols+Outlined:wght,FILL@400,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: #fff;
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      .fill-icon {
+        font-variation-settings:
+          "FILL" 1,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+
+      /* ── Two-page slider ── */
+      #app {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+      }
+      #track {
+        display: flex;
+        width: 200vw;
+        height: 100vh;
+        transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .page {
+        width: 100vw;
+        height: 100vh;
+        flex-shrink: 0;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* ── IDLE ── */
+      #idle {
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+        overflow: hidden;
+        position: relative;
+      }
+      /* fullscreen background images stacked, fading */
+      .idle-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 1.6s ease-in-out;
+        z-index: 0;
+      }
+      .idle-bg.visible {
+        opacity: 0.28;
+      }
+      /* white overlay so images don't overpower text */
+      .idle-overlay {
+        position: absolute;
+        inset: 0;
+        background: #ffffff;
+        opacity: 0.15;
+        z-index: 1;
+        pointer-events: none;
+      }
+      /* center content sits above images */
+      .idle-center {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .idle-wordmark {
+        font-family: "Fraunces", serif;
+        font-weight: 900;
+        font-size: clamp(80px, 16vw, 160px);
+        letter-spacing: -2px;
+        line-height: 0.95;
+        white-space: nowrap;
+        background: linear-gradient(
+          135deg,
+          #bd001a 0%,
+          #0038a8 50%,
+          #fcd116 100%,
+          #bd001a 150%
+        );
+        background-size: 200%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: shimmer 3s linear infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 0%;
+        }
+        100% {
+          background-position: 200%;
+        }
+      }
+      .idle-tap {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #5d3f3c;
+        margin-top: 36px;
+        animation: blink 2.2s ease-in-out infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* ── DASHBOARD ── */
+      #dashboard {
+        background: #faf9f7;
+        display: flex;
+        flex-direction: column;
+        padding: 22px 26px 18px;
+        gap: 10px;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .greeting-title {
+        font-family: "Fraunces", serif;
+        font-weight: 900;
+        font-size: clamp(36px, 4vw, 52px);
+        line-height: 1;
+        color: #bd001a;
+        letter-spacing: -0.02em;
+        flex-shrink: 0;
+      }
+      .greeting-sub {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-weight: 500;
+        font-size: 17px;
+        color: #5d3f3c;
+        margin-top: 4px;
+        flex-shrink: 0;
+      }
+
+      /* ── Bento grid ── */
+      .bento-grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        gap: 10px;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .tile {
+        border-radius: 20px;
+        border: 1px solid #a8a9ad;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+        position: relative;
+      }
+      /* overflow:hidden only on desktop where grid controls height */
+      @media (min-width: 901px) {
+        .tile {
+          overflow: hidden;
+        }
+      }
+      .tile:active {
+        transform: scale(0.97);
+        box-shadow: none;
+      }
+      .t-city {
+        grid-column: span 8;
+        grid-row: span 4;
+        background: #fcd400;
+      }
+      .t-guide {
+        grid-column: span 4;
+        grid-row: span 3;
+        background: #e61e2a;
+      }
+      .t-quiz {
+        grid-column: span 4;
+        grid-row: span 3;
+        background: #4b6edd;
+      }
+      .t-timeline {
+        grid-column: span 4;
+        grid-row: span 2;
+        background: #2d7d9a;
+      }
+      .t-lb {
+        grid-column: span 4;
+        grid-row: span 2;
+        background: #e3e2e0;
+      }
+      .tile-inner {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        z-index: 1;
+      }
+      @media (min-width: 901px) {
+        .tile-inner {
+          height: 100%;
+        }
+      }
+      @media (max-width: 900px) {
+        .tile-inner {
+          height: auto;
+          padding: 16px;
+        }
+      }
+      .tile-tag {
+        display: inline-block;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        background: #bd001a;
+        color: #fff;
+        align-self: flex-start;
+      }
+      .tile-title {
+        font-family: "Fraunces", serif;
+        font-weight: 800;
+        line-height: 1.1;
+      }
+      .tile-desc {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-weight: 500;
+      }
+      .tile-btn {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 14px 24px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s;
+        align-self: flex-start;
+      }
+      .tile-btn:active {
+        transform: translateY(2px);
+      }
+      .tile-deco {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ══════════════════════════════════
+       OVERLAY SYSTEM — Pista Moderno
+       Bricolage headlines · Chrome borders
+       Street Sun shadows · Pill buttons
+    ══════════════════════════════════ */
+
+      /* ── Overlay shell ── */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        transform: translateX(100%);
+        transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background: #faf9f7;
+      }
+      .overlay.open {
+        transform: translateX(0);
+      }
+
+      /* ── Top bar — chrome plaka style ── */
+      .ov-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 28px;
+        flex-shrink: 0;
+        background: #faf9f7;
+        border-bottom: 1px solid #a8a9ad;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+      }
+      .ov-topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .ov-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        flex-shrink: 0;
+        border: 1px solid #a8a9ad;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      }
+      .ov-topbar-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        color: #1b1c1b;
+        letter-spacing: -0.01em;
+      }
+      .back-btn {
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        color: #1b1c1b;
+        border-radius: 9999px;
+        padding: 9px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        box-shadow: 0 4px 0 #d4d4d4;
+        transition: all 0.15s;
+      }
+      .back-btn:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+      .ov-scrollable {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        background: #faf9f7;
+      }
+      ::-webkit-scrollbar {
+        width: 3px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #a8a9ad;
+        border-radius: 3px;
+      }
+
+      /* ── Section header used across overlays ── */
+      .section-eyebrow {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #926e6b;
+        margin-bottom: 8px;
+      }
+      .section-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        font-size: 36px;
+        line-height: 1.1;
+        color: #1b1c1b;
+        letter-spacing: -0.01em;
+      }
+      /* chrome rule */
+      .chrome-rule {
+        height: 1px;
+        background: linear-gradient(90deg, #a8a9ad, #e7bdb9, #a8a9ad);
+        margin: 0;
+      }
+
+      /* ══ CITY OVERVIEW ══ */
+      #ov-city .ov-scrollable {
+        background: #faf9f7;
+      }
+      .city-hero {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #2d1a00;
+      }
+      .city-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.65;
+      }
+      .city-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(transparent 25%, rgba(0, 0, 0, 0.85));
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 20px 28px;
+      }
+      .city-hero-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 40px;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.02em;
+      }
+      .city-hero-sub {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.65);
+        margin-top: 4px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .city-pad {
+        padding: 24px 28px;
+      }
+      /* stat tiles — speedometer gauge style */
+      .stat-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .stat-box {
+        border-radius: 16px;
+        padding: 16px 12px;
+        text-align: center;
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+      }
+      .stat-box-val {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 34px;
+        font-weight: 800;
+        color: #bd001a;
+      }
+      .stat-box-lbl {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 13px;
+        margin-top: 5px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #926e6b;
+      }
+      .map-box {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #a8a9ad;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+      }
+      .map-box img {
+        width: 100%;
+        display: block;
+      }
+      .map-box-lbl {
+        background: #fcd400;
+        padding: 10px 16px;
+        font-size: 15px;
+        color: #221b00;
+        text-align: center;
+        font-weight: 700;
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: 0.04em;
+      }
+      .city-desc {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #a8a9ad;
+        padding: 18px 20px;
+        font-size: 18px;
+        line-height: 1.8;
+        color: #1b1c1b;
+        font-weight: 400;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+      }
+      /* facts — ledger rows with chrome rules */
+      .facts-box {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #a8a9ad;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+      }
+      .facts-head {
+        padding: 12px 18px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #705d00;
+        background: #fcd400;
+        border-bottom: 1px solid #a8a9ad;
+      }
+      .fact-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 18px;
+        border-bottom: 1px solid #e7bdb9;
+        background: #fff;
+      }
+      .fact-row:last-child {
+        border-bottom: none;
+      }
+      .fact-k {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 15px;
+        color: #926e6b;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .fact-v {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 17px;
+        font-weight: 600;
+        color: #1b1c1b;
+      }
+
+      /* ══ HERITAGE GUIDE ══ */
+      #ov-guide .ov-scrollable {
+        background: #faf9f7;
+      }
+      .guide-intro {
+        padding: 16px 28px 8px;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 17px;
+        color: #5d3f3c;
+        font-weight: 500;
+        line-height: 1.6;
+        flex-shrink: 0;
+      }
+      .guide-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        padding: 8px 28px 32px;
+      }
+      /* exp-card — plaka panel */
+      .exp-card {
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+        user-select: none;
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+      }
+      .exp-card:active {
+        transform: scale(0.97);
+        box-shadow: none;
+      }
+      .exp-card-stripe {
+        height: 5px;
+        flex-shrink: 0;
+      }
+      .exp-card-inner {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px 16px 10px;
+      }
+      .exp-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+        border: 1px solid #a8a9ad;
+      }
+      .exp-card-body {
+        flex: 1;
+      }
+      .exp-card-station {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .exp-card-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.2;
+        color: #1b1c1b;
+      }
+      .exp-card-preview {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 15px;
+        color: #926e6b;
+        line-height: 1.45;
+        margin-top: 4px;
+        font-weight: 400;
+      }
+      .exp-card-footer {
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid #e7bdb9;
+        background: #faf9f7;
+      }
+      .exp-card-cta {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #bd001a;
+      }
+      .exp-card-arrow {
+        font-size: 18px;
+        color: #a8a9ad;
+      }
+
+      /* ══ DETAIL ══ */
+      #ov-detail .ov-scrollable {
+        background: #faf9f7;
+      }
+      .detail-hero {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #efeeec;
+      }
+      .detail-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .detail-hero-grad {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(transparent 20%, rgba(0, 0, 0, 0.8));
+      }
+      .detail-hero-text {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px 28px;
+      }
+      .detail-station {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        color: #fcd400;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .detail-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 36px;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.01em;
+      }
+      .detail-caption {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 4px;
+        font-weight: 400;
+      }
+      .detail-pad {
+        padding: 24px 28px;
+      }
+      /* TTS — action button */
+      .tts-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .tts-play {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #bd001a;
+        color: #fff;
+        border: none;
+        border-radius: 9999px;
+        padding: 14px 28px;
+        font-size: 17px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: 0.04em;
+        box-shadow: 0 4px 0 #930011;
+        transition: all 0.15s;
+      }
+      .tts-play:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+      .tts-stop {
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        color: #bd001a;
+        border-radius: 9999px;
+        padding: 12px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        box-shadow: 0 4px 0 #d4d4d4;
+        transition: all 0.15s;
+      }
+      .tts-stop:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+      .tts-stat {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 15px;
+        color: #2e54c2;
+        font-weight: 700;
+      }
+      /* body text */
+      .detail-text {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 19px;
+        line-height: 1.85;
+        color: #1b1c1b;
+        font-weight: 400;
+      }
+      .detail-text p {
+        margin-bottom: 14px;
+      }
+      /* quiz CTA banner */
+      .quiz-cta {
+        margin-top: 24px;
+        border-radius: 16px;
+        background: #fff3b0;
+        border: 1px solid #a8a9ad;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+      }
+      .quiz-cta-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .quiz-cta-emoji {
+        font-size: 28px;
+      }
+      .quiz-cta-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        color: #1b1c1b;
+      }
+      .quiz-cta-sub {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 15px;
+        color: #5d3f3c;
+        margin-top: 2px;
+        font-weight: 400;
+      }
+      .quiz-cta-btn {
+        background: #bd001a;
+        color: #fff;
+        border: none;
+        border-radius: 9999px;
+        padding: 15px 26px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+        flex-shrink: 0;
+        box-shadow: 0 4px 0 #930011;
+        transition: all 0.15s;
+      }
+      .quiz-cta-btn:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+
+      /* ══ QUIZ ══ */
+      #ov-quiz .ov-scrollable {
+        background: #faf9f7;
+      }
+      .quiz-sel-pad {
+        padding: 20px 28px;
+      }
+      .quiz-sel-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 15px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #926e6b;
+        font-weight: 700;
+        margin-bottom: 16px;
+      }
+      .quiz-topics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      /* topic button — plaka panel */
+      .quiz-topic-btn {
+        border-radius: 16px;
+        padding: 16px 14px;
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        cursor: pointer;
+        color: #1b1c1b;
+        transition: all 0.15s;
+        user-select: none;
+        text-align: left;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+      }
+      .quiz-topic-btn:active {
+        transform: scale(0.97);
+        box-shadow: none;
+      }
+      .quiz-topic-name {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.2;
+        color: #1b1c1b;
+      }
+      .quiz-topic-count {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 14px;
+        color: #926e6b;
+        margin-top: 4px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      /* active quiz */
+      .quiz-game {
+        display: none;
+        padding: 20px 28px;
+        flex-direction: column;
+        align-items: center;
+      }
+      .q-prog-row {
+        width: 100%;
+        max-width: 700px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .q-prog-track {
+        flex: 1;
+        height: 8px;
+        background: #e3e2e0;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #a8a9ad;
+      }
+      .q-prog-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #bd001a, #fcd400);
+        border-radius: 8px;
+        transition: width 0.4s;
+      }
+      .q-prog-txt {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: #926e6b;
+        white-space: nowrap;
+        letter-spacing: 0.04em;
+      }
+      .q-chip {
+        display: inline-block;
+        border-radius: 9999px;
+        padding: 6px 16px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+        background: #fcd400;
+        color: #221b00;
+        border: 1px solid #a8a9ad;
+      }
+      .q-question {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 34px;
+        font-weight: 800;
+        line-height: 1.3;
+        text-align: center;
+        max-width: 720px;
+        margin-bottom: 24px;
+        color: #1b1c1b;
+        letter-spacing: -0.01em;
+      }
+      .q-opts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        width: 100%;
+        max-width: 660px;
+      }
+      /* option button — physical plaka */
+      .q-opt {
+        background: #fff;
+        border: 1.5px solid #a8a9ad;
+        border-radius: 16px;
+        padding: 22px 18px;
+        font-size: 19px;
+        color: #1b1c1b;
+        cursor: pointer;
+        text-align: left;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-weight: 500;
+        transition: all 0.15s;
+        user-select: none;
+        min-height: 88px;
+        display: flex;
+        align-items: center;
+        line-height: 1.35;
+        box-shadow: 0 4px 0 #d4d4d4;
+      }
+      .q-opt:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+      .q-opt.correct {
+        background: #d4edda;
+        border-color: #22c55e;
+        color: #14532d;
+        box-shadow: 0 4px 0 #16a34a;
+      }
+      .q-opt.wrong {
+        background: #fde8e8;
+        border-color: #ef4444;
+        color: #7f1d1d;
+        box-shadow: none;
+      }
+      .q-opt.disabled {
+        pointer-events: none;
+      }
+      .q-fb {
+        margin-top: 18px;
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 22px;
+        text-align: center;
+        font-weight: 800;
+        min-height: 30px;
+        color: #1b1c1b;
+      }
+      .q-fb.ok {
+        color: #16a34a;
+      }
+      .q-fb.bad {
+        color: #bd001a;
+      }
+      .q-next-btn {
+        margin-top: 22px;
+        background: #bd001a;
+        color: #fff;
+        border: none;
+        border-radius: 9999px;
+        padding: 17px 48px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: 0.04em;
+        box-shadow: 0 4px 0 #930011;
+        transition: all 0.15s;
+      }
+      .q-next-btn:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+      /* result screen */
+      .q-result {
+        display: none;
+        padding: 28px;
+        text-align: center;
+      }
+      .result-emoji {
+        font-size: 72px;
+        margin-bottom: 12px;
+      }
+      .result-score {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 120px;
+        font-weight: 800;
+        line-height: 1;
+        color: #bd001a;
+        letter-spacing: -0.04em;
+      }
+      .result-of {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 19px;
+        color: #926e6b;
+        margin: 8px 0 18px;
+        font-weight: 700;
+      }
+      .result-msg {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        margin-bottom: 28px;
+        color: #1b1c1b;
+      }
+      .result-form {
+        text-align: left;
+        max-width: 440px;
+        margin: 0 auto;
+      }
+      .result-label {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 14px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #926e6b;
+        font-weight: 700;
+        display: block;
+        margin-bottom: 6px;
+      }
+      /* recessed metal slot input */
+      .result-input {
+        width: 100%;
+        background: #efeeec;
+        border: 1px solid #a8a9ad;
+        border-radius: 12px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
+        padding: 16px 18px;
+        color: #1b1c1b;
+        font-size: 18px;
+        margin-bottom: 14px;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        outline: none;
+        font-weight: 500;
+      }
+      .result-input:focus {
+        border-color: #bd001a;
+        box-shadow:
+          inset 0 2px 4px rgba(0, 0, 0, 0.08),
+          0 0 0 2px rgba(189, 0, 26, 0.15);
+      }
+      .result-save {
+        width: 100%;
+        background: #bd001a;
+        color: #fff;
+        border: none;
+        border-radius: 9999px;
+        padding: 18px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: 0.04em;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 0 #930011;
+        transition: all 0.15s;
+      }
+      .result-save:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+      .result-skip {
+        background: none;
+        border: none;
+        color: #926e6b;
+        font-size: 16px;
+        cursor: pointer;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+      }
+
+      /* ══ LEADERBOARD ══ */
+      #ov-lb .ov-scrollable {
+        background: #faf9f7;
+      }
+      .lb-head {
+        padding: 20px 28px 0;
+        flex-shrink: 0;
+      }
+      .lb-head h2 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 4px;
+        color: #1b1c1b;
+        letter-spacing: -0.01em;
+      }
+      .lb-head p {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 17px;
+        color: #926e6b;
+        font-weight: 400;
+        margin-bottom: 16px;
+      }
+      /* filter chips — route tag style */
+      .lb-filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 0 28px 14px;
+        flex-shrink: 0;
+      }
+      .lb-filter-btn {
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        color: #5d3f3c;
+        border-radius: 9999px;
+        padding: 9px 20px;
+        font-size: 14px;
+        cursor: pointer;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        transition: all 0.15s;
+        white-space: nowrap;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+      }
+      .lb-filter-btn.on {
+        background: #fcd400;
+        border-color: #a8a9ad;
+        color: #221b00;
+        box-shadow: 0 4px 0 #b29400;
+      }
+      .lb-filter-btn:active {
+        transform: scale(0.96);
+      }
+      /* chrome-tinted table */
+      .lb-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 28px;
+        width: calc(100% - 56px);
+      }
+      .lb-tbl th {
+        text-align: left;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #926e6b;
+        padding: 12px 16px;
+        border-bottom: 1px solid #a8a9ad;
+        font-weight: 700;
+        background: #efeeec;
+      }
+      .lb-tbl th:first-child {
+        border-radius: 8px 0 0 0;
+      }
+      .lb-tbl th:last-child {
+        border-radius: 0 8px 0 0;
+      }
+      .lb-tbl td {
+        padding: 15px 16px;
+        border-bottom: 1px solid #e7bdb9;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        color: #1b1c1b;
+        background: #fff;
+      }
+      .lb-tbl tr:last-child td {
+        border-bottom: none;
+      }
+      .lb-tbl tr:last-child td:first-child {
+        border-radius: 0 0 0 8px;
+      }
+      .lb-tbl tr:last-child td:last-child {
+        border-radius: 0 0 8px 0;
+      }
+      .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 28px;
+        border-radius: 9999px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        border: 1px solid #a8a9ad;
+      }
+      .r1 {
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #000;
+        border-color: #c8900a;
+      }
+      .r2 {
+        background: linear-gradient(135deg, #c0c0c0, #909090);
+        color: #000;
+        border-color: #808080;
+      }
+      .r3 {
+        background: linear-gradient(135deg, #cd7f32, #8b5e3c);
+        color: #fff;
+        border-color: #6b3e1e;
+      }
+      .rn {
+        background: #efeeec;
+        color: #926e6b;
+      }
+      .score-pill {
+        background: #fcd400;
+        color: #221b00;
+        border-radius: 9999px;
+        padding: 6px 14px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        border: 1px solid #a8a9ad;
+      }
+      .lb-empty {
+        text-align: center;
+        padding: 56px 20px;
+        color: #926e6b;
+        font-size: 19px;
+        font-weight: 500;
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      /* ══ TIMELINE ══ */
+      #ov-timeline .ov-scrollable {
+        background: #faf9f7;
+      }
+      .tl-hero {
+        padding: 20px 28px 14px;
+        flex-shrink: 0;
+        border-bottom: 1px solid #a8a9ad;
+      }
+      .tl-hero-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 36px;
+        font-weight: 800;
+        color: #1b1c1b;
+        letter-spacing: -0.01em;
+      }
+      .tl-hero-sub {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 18px;
+        color: #5d3f3c;
+        margin: 6px 0 8px;
+        font-weight: 400;
+      }
+      .tl-years-badge {
+        display: inline-block;
+        background: #fcd400;
+        border: 1px solid #a8a9ad;
+        border-radius: 9999px;
+        padding: 5px 16px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 14px;
+        color: #221b00;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      /* spine — chrome rod */
+      .tl-spine-wrap {
+        position: relative;
+        padding: 16px 0 32px;
+      }
+      .tl-spine {
+        position: absolute;
+        left: 43px;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #bd001a, #fcd400, #2e54c2);
+        border-radius: 3px;
+        opacity: 0.5;
+      }
+      .tl-events {
+        padding: 0 28px 0 72px;
+      }
+      .tl-item {
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .tl-node {
+        position: absolute;
+        left: -42px;
+        top: 18px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        border: 2px solid #a8a9ad;
+      }
+      .tl-node-icon {
+        font-size: 14px;
+      }
+      /* tl-card — plaka panel */
+      .tl-card {
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.07);
+      }
+      .tl-card-year {
+        padding: 12px 18px 0;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .tl-card-title {
+        padding: 4px 18px 2px;
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        color: #1b1c1b;
+        letter-spacing: -0.01em;
+      }
+      .tl-card-sub {
+        padding: 0 18px 10px;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 16px;
+        color: #926e6b;
+        font-weight: 400;
+      }
+      .tl-card-body {
+        padding: 0 18px 14px;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 17px;
+        line-height: 1.75;
+        color: #1b1c1b;
+        font-weight: 400;
+      }
+      /* did you know — route tag accent */
+      .tl-card-legend {
+        margin: 0 14px 14px;
+        border-radius: 12px;
+        border: 1px solid #a8a9ad;
+        overflow: hidden;
+      }
+      .tl-legend-label {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 10px 16px;
+        background: #fcd400;
+        color: #221b00;
+        border-bottom: 1px solid #a8a9ad;
+      }
+      .tl-legend-text {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 15px;
+        line-height: 1.65;
+        color: #1b1c1b;
+        font-weight: 400;
+        padding: 12px 16px;
+        background: #fff;
+      }
+
+      /* ── Confirm Modal ── */
+      #confirm-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        background: rgba(0, 0, 0, 0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+      }
+      #confirm-modal.open {
+        display: flex;
+      }
+      .confirm-box {
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        border-radius: 20px;
+        padding: 28px 28px 24px;
+        width: 360px;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+      }
+      .confirm-icon {
+        font-size: 36px;
+        margin-bottom: 10px;
+      }
+      .confirm-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        font-size: 20px;
+        color: #1b1c1b;
+        margin-bottom: 8px;
+      }
+      .confirm-msg {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 15px;
+        color: #5d3f3c;
+        line-height: 1.5;
+        margin-bottom: 24px;
+      }
+      .confirm-btns {
+        display: flex;
+        gap: 12px;
+      }
+      .confirm-ok {
+        flex: 1;
+        background: #bd001a;
+        color: #fff;
+        border: none;
+        border-radius: 9999px;
+        padding: 14px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #930011;
+        transition: all 0.15s;
+      }
+      .confirm-ok:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+      .confirm-cancel {
+        flex: 1;
+        background: #fff;
+        color: #1b1c1b;
+        border: 1px solid #a8a9ad;
+        border-radius: 9999px;
+        padding: 14px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #d4d4d4;
+        transition: all 0.15s;
+      }
+      .confirm-cancel:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+
+      /* ── Toast ── */
+      /* ── Confirm Modal ── */
+      #confirm-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        background: rgba(0, 0, 0, 0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+      }
+      #confirm-modal.open {
+        display: flex;
+      }
+      .confirm-box {
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        border-radius: 20px;
+        padding: 28px 28px 24px;
+        width: 360px;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+      }
+      .confirm-icon {
+        font-size: 36px;
+        margin-bottom: 10px;
+      }
+      .confirm-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        font-size: 20px;
+        color: #1b1c1b;
+        margin-bottom: 8px;
+      }
+      .confirm-msg {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 15px;
+        color: #5d3f3c;
+        line-height: 1.5;
+        margin-bottom: 24px;
+      }
+      .confirm-btns {
+        display: flex;
+        gap: 12px;
+      }
+      .confirm-ok {
+        flex: 1;
+        background: #bd001a;
+        color: #fff;
+        border: none;
+        border-radius: 9999px;
+        padding: 14px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #930011;
+        transition: all 0.15s;
+      }
+      .confirm-ok:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+      .confirm-cancel {
+        flex: 1;
+        background: #fff;
+        color: #1b1c1b;
+        border: 1px solid #a8a9ad;
+        border-radius: 9999px;
+        padding: 14px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #d4d4d4;
+        transition: all 0.15s;
+      }
+      .confirm-cancel:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+
+      /* ── Toast ── */
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: linear-gradient(135deg, #06b6a4, #22c55e);
+        border-radius: 50px;
+        padding: 12px 22px;
+        font-size: 17px;
+        font-weight: 700;
+        display: none;
+        z-index: 500;
+        font-family: "Space Grotesk", sans-serif;
+      }
+
+      /* ═══════════════════════════════════════════
+         RESPONSIVE — Mobile & Small Tablet
+         Targets: phones (≤600px) and small tablets (≤900px portrait)
+      ═══════════════════════════════════════════ */
+
+      /* ── Small tablet portrait (≤900px) ── */
+      @media (max-width: 900px) {
+        /* Dashboard — allow scroll on mobile */
+        #dashboard {
+          padding: 16px 18px 14px;
+          gap: 10px;
+          overflow-y: auto;
+          height: 100vh;
+        }
+        .greeting-title {
+          font-size: clamp(26px, 4vw, 36px);
+        }
+        .greeting-sub {
+          font-size: 14px;
+        }
+
+        /* Bento: 2-col, auto rows, tiles size to content */
+        .bento-grid {
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: unset;
+          grid-auto-rows: auto;
+          gap: 10px;
+          overflow: visible;
+          height: auto;
+          flex: unset;
+        }
+        /* reset row spans — let content dictate height */
+        .t-city,
+        .t-guide,
+        .t-quiz,
+        .t-timeline,
+        .t-lb {
+          grid-row: unset !important;
+          overflow: visible !important;
+          height: auto !important;
+        }
+        .t-city {
+          grid-column: span 2;
+        }
+        .t-guide {
+          grid-column: span 1;
+        }
+        .t-quiz {
+          grid-column: span 1;
+        }
+        .t-timeline {
+          grid-column: span 1;
+        }
+        .t-lb {
+          grid-column: span 2;
+        }
+
+        /* tile — force natural height, no clipping */
+        .tile {
+          overflow: visible !important;
+          height: auto !important;
+        }
+        .tile-inner {
+          padding: 16px !important;
+          height: auto !important;
+          min-height: unset !important;
+        }
+        .tile-tag {
+          font-size: 11px;
+          padding: 3px 10px;
+        }
+        .tile-btn {
+          font-size: 13px;
+          padding: 11px 18px;
+          align-self: stretch;
+          text-align: center;
+          display: block;
+        }
+
+        /* Overlay topbar */
+        .ov-topbar {
+          padding: 12px 18px;
+        }
+        .ov-topbar-title {
+          font-size: 17px;
+        }
+        .back-btn {
+          font-size: 13px;
+          padding: 8px 16px;
+        }
+
+        /* Guide 2-col */
+        .guide-grid {
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          padding: 6px 18px 20px;
+        }
+
+        /* Quiz */
+        .q-opts-grid {
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+        .q-question {
+          font-size: 22px;
+        }
+        .q-opt {
+          font-size: 16px;
+          min-height: 68px;
+          padding: 16px 14px;
+        }
+        .quiz-topics-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        /* City stats */
+        .stat-row {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+        }
+        .stat-box-val {
+          font-size: 22px;
+        }
+        .city-pad {
+          padding: 16px;
+        }
+
+        /* Timeline */
+        .tl-hero-title {
+          font-size: 22px;
+        }
+        .tl-hero {
+          padding: 14px 18px 10px;
+        }
+
+        /* Detail */
+        .detail-pad {
+          padding: 16px;
+        }
+        .detail-title {
+          font-size: 26px;
+        }
+        .detail-text {
+          font-size: 16px;
+        }
+
+        /* Result */
+        .result-score {
+          font-size: 80px;
+        }
+      }
+
+      /* ── Phone landscape (≤812px height) ── */
+      @media (max-height: 500px) {
+        #dashboard {
+          padding: 10px 16px 8px;
+          gap: 6px;
+          overflow-y: auto;
+          height: 100vh;
+        }
+        .bento-grid {
+          grid-template-columns: repeat(3, 1fr);
+          overflow-y: auto;
+        }
+        .t-city {
+          grid-column: span 3;
+          min-height: 160px;
+        }
+        .t-guide,
+        .t-quiz {
+          grid-column: span 1;
+          min-height: 130px;
+        }
+        .t-timeline,
+        .t-lb {
+          grid-column: span 1;
+          min-height: 110px;
+        }
+        .greeting-title {
+          font-size: 24px;
+        }
+        .greeting-sub {
+          font-size: 13px;
+          margin-top: 2px;
+        }
+
+        /* overlays scroll on small height */
+        .ov-scrollable {
+          overflow-y: auto;
+        }
+        .detail-hero {
+          height: 140px;
+        }
+        .city-hero {
+          height: 140px;
+        }
+        .q-question {
+          font-size: 18px;
+          margin-bottom: 14px;
+        }
+        .q-opt {
+          font-size: 14px;
+          min-height: 54px;
+          padding: 12px;
+        }
+      }
+
+      /* ── Phone portrait (≤600px) ── */
+      @media (max-width: 600px) {
+        /* Idle wordmark */
+        .idle-wordmark {
+          font-size: clamp(48px, 14vw, 80px);
+          letter-spacing: -1px;
+        }
+        .idle-tap {
+          font-size: 13px;
+          margin-top: 20px;
+        }
+
+        /* Dashboard */
+        #dashboard {
+          padding: 14px 14px 12px;
+          gap: 8px;
+          overflow-y: auto;
+          height: 100vh;
+        }
+        .greeting-title {
+          font-size: clamp(24px, 7vw, 32px);
+        }
+        .greeting-sub {
+          font-size: 13px;
+        }
+
+        /* Bento: single column on small phones */
+        .bento-grid {
+          grid-template-columns: 1fr;
+          grid-auto-rows: auto !important;
+          overflow: visible !important;
+          height: auto !important;
+          flex: unset !important;
+        }
+        .t-city,
+        .t-guide,
+        .t-quiz,
+        .t-timeline,
+        .t-lb {
+          grid-column: span 1 !important;
+          grid-row: unset !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        /* Tile text scales down */
+        .tile-inner {
+          padding: 14px !important;
+          height: auto !important;
+          min-height: unset !important;
+        }
+        .tile {
+          overflow: visible !important;
+          height: auto !important;
+        }
+        .tile-tag {
+          font-size: 10px;
+        }
+        .tile-btn {
+          font-size: 12px;
+          padding: 10px 16px;
+          align-self: stretch;
+          text-align: center;
+          display: block;
+        }
+
+        /* Guide: single col on phone */
+        .guide-grid {
+          grid-template-columns: 1fr;
+          padding: 6px 14px 20px;
+        }
+        .exp-card-title {
+          font-size: 16px;
+        }
+        .exp-card-preview {
+          font-size: 13px;
+        }
+
+        /* Quiz: single col options */
+        .q-opts-grid {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+        .quiz-topics-grid {
+          grid-template-columns: 1fr;
+        }
+        .q-question {
+          font-size: 20px;
+        }
+        .q-opt {
+          font-size: 15px;
+          min-height: 56px;
+        }
+        .quiz-game {
+          padding: 14px;
+        }
+        .quiz-sel-pad {
+          padding: 14px;
+        }
+
+        /* City overlay */
+        .city-pad {
+          padding: 14px;
+        }
+        .stat-row {
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 6px;
+        }
+        .stat-box-val {
+          font-size: 20px;
+        }
+        .stat-box {
+          padding: 12px 8px;
+        }
+        .city-hero {
+          height: 180px;
+        }
+        .city-hero-title {
+          font-size: 26px;
+        }
+
+        /* Detail */
+        .detail-hero {
+          height: 180px;
+        }
+        .detail-hero-text {
+          padding: 14px;
+        }
+        .detail-title {
+          font-size: 22px;
+        }
+        .detail-pad {
+          padding: 14px;
+        }
+        .detail-text {
+          font-size: 15px;
+        }
+        .tts-play {
+          font-size: 14px;
+          padding: 11px 18px;
+        }
+        .quiz-cta {
+          flex-direction: column;
+          gap: 10px;
+        }
+        .quiz-cta-btn {
+          width: 100%;
+          text-align: center;
+        }
+
+        /* Timeline */
+        .tl-hero {
+          padding: 12px 14px 8px;
+        }
+        .tl-hero-title {
+          font-size: 22px;
+        }
+        .tl-events {
+          padding: 0 14px 0 56px;
+        }
+        .tl-card-title {
+          font-size: 20px;
+        }
+        .tl-card-body {
+          font-size: 14px;
+        }
+
+        /* Overlay topbar */
+        .ov-topbar {
+          padding: 10px 14px;
+        }
+        .ov-topbar-title {
+          font-size: 15px;
+        }
+        .back-btn {
+          font-size: 12px;
+          padding: 7px 14px;
+        }
+        .ov-icon {
+          width: 32px;
+          height: 32px;
+          font-size: 16px;
+        }
+
+        /* Leaderboard */
+        .lb-head {
+          padding: 14px 14px 0;
+        }
+        .lb-head h2 {
+          font-size: 22px;
+        }
+        .lb-filters {
+          padding: 0 14px 10px;
+          gap: 6px;
+        }
+        .lb-tbl {
+          margin: 0 14px;
+          width: calc(100% - 28px);
+        }
+        .lb-tbl th,
+        .lb-tbl td {
+          padding: 10px 10px;
+          font-size: 12px;
+        }
+        /* hide less important columns on phone */
+        .lb-tbl th:nth-child(3),
+        .lb-tbl td:nth-child(3),
+        .lb-tbl th:nth-child(6),
+        .lb-tbl td:nth-child(6) {
+          display: none;
+        }
+
+        /* Result */
+        .result-score {
+          font-size: 72px;
+        }
+        .result-msg {
+          font-size: 18px;
+        }
+        .q-result {
+          padding: 16px;
+        }
+        .result-form {
+          max-width: 100%;
+        }
+
+        /* Confirm modal */
+        .confirm-box {
+          width: calc(100vw - 32px);
+          padding: 20px;
+        }
+        .confirm-title {
+          font-size: 18px;
+        }
+        .confirm-msg {
+          font-size: 14px;
+        }
+
+        /* Sleep button */
+        #btn-go-idle {
+          font-size: 12px;
+          padding: 8px 16px;
+        }
+        #btn-qr {
+          font-size: 12px;
+          padding: 8px 16px;
+        }
+      }
+
+      /* ── QR Modal ── */
+      #qr-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        background: rgba(0, 0, 0, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s ease;
+      }
+      #qr-modal-backdrop.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      #qr-modal {
+        background: #faf9f7;
+        border-radius: 24px;
+        padding: 32px 28px 28px;
+        max-width: 340px;
+        width: calc(100vw - 48px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        transform: scale(0.92);
+        transition: transform 0.22s ease;
+        border: 1px solid #a8a9ad;
+      }
+      #qr-modal-backdrop.open #qr-modal {
+        transform: scale(1);
+      }
+      .qr-modal-title {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        font-size: 22px;
+        color: #1b1c1b;
+        letter-spacing: -0.01em;
+        text-align: center;
+      }
+      .qr-modal-sub {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 14px;
+        color: #926e6b;
+        text-align: center;
+        line-height: 1.5;
+        margin-top: -6px;
+      }
+      .qr-img-wrap {
+        width: 220px;
+        height: 220px;
+        border-radius: 16px;
+        border: 2px solid #a8a9ad;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+      }
+      .qr-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .qr-close-btn {
+        background: #fff;
+        border: 1px solid #a8a9ad;
+        color: #926e6b;
+        border-radius: 9999px;
+        padding: 10px 28px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #d4d4d4;
+        transition: all 0.15s;
+        margin-top: 4px;
+      }
+      .qr-close-btn:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+
+      /* ── MOBILE INLINE OVERRIDE — targets inline styles on tile elements ── */
+      @media (max-width: 900px) {
+        /* Force tiles to expand to content */
+        .bento-grid {
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 12px !important;
+          overflow-y: auto !important;
+          height: auto !important;
+        }
+        .t-city,
+        .t-guide,
+        .t-quiz,
+        .t-timeline,
+        .t-lb {
+          width: 100% !important;
+          height: auto !important;
+          overflow: visible !important;
+          grid-column: unset !important;
+          grid-row: unset !important;
+        }
+        .t-timeline {
+          min-height: 160px !important;
+          overflow: hidden !important;
+          position: relative !important;
+        }
+        .tile {
+          overflow: visible !important;
+          height: auto !important;
+          border-radius: 16px !important;
+        }
+        .tile-inner {
+          height: auto !important;
+          padding: 16px !important;
+          min-height: unset !important;
+          justify-content: flex-start !important;
+          gap: 12px !important;
+        }
+        /* buttons flow after content, full width */
+        .tile-inner > button.tile-btn,
+        .tile-inner button.tile-btn {
+          margin-top: 4px !important;
+          align-self: stretch !important;
+          width: 100% !important;
+          display: block !important;
+          text-align: center !important;
+          order: 99 !important;
+        }
+
+        /* Scale down all inline font-sizes inside tiles using * selector */
+        .tile-inner * {
+          font-size: revert;
+        }
+        /* Re-apply sensible sizes */
+        .tile-inner [style*="font-size: clamp(36px"] {
+          font-size: 26px !important;
+        }
+        .tile-inner [style*="font-size: clamp(28px"] {
+          font-size: 26px !important;
+        }
+        .tile-inner [style*="font-size: 30px"] {
+          font-size: 20px !important;
+        }
+        .tile-inner [style*="font-size: 28px"] {
+          font-size: 19px !important;
+        }
+        .tile-inner [style*="font-size: 26px"] {
+          font-size: 18px !important;
+        }
+        .tile-inner [style*="font-size: 24px"] {
+          font-size: 17px !important;
+        }
+        .tile-inner [style*="font-size: 18px"] {
+          font-size: 14px !important;
+        }
+        .tile-inner [style*="font-size: 17px"] {
+          font-size: 13px !important;
+        }
+        .tile-inner [style*="font-size: 16px"] {
+          font-size: 13px !important;
+        }
+        .tile-inner [style*="font-size: 14px"] {
+          font-size: 12px !important;
+        }
+        .tile-inner [style*="font-size: 13px"] {
+          font-size: 11px !important;
+        }
+
+        /* Tile buttons full width */
+        .tile-btn {
+          width: 100% !important;
+          text-align: center !important;
+          display: block !important;
+          align-self: stretch !important;
+        }
+
+        /* Greeting */
+        .greeting-title {
+          font-size: 28px !important;
+        }
+        .greeting-sub {
+          font-size: 14px !important;
+        }
+
+        /* Sleep button */
+        #btn-go-idle {
+          font-size: 13px !important;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .tile-inner [style*="font-size: clamp(36px"] {
+          font-size: 22px !important;
+        }
+        .tile-inner [style*="font-size: clamp(28px"] {
+          font-size: 22px !important;
+        }
+        .tile-inner [style*="font-size: 30px"] {
+          font-size: 18px !important;
+        }
+        .tile-inner [style*="font-size: 28px"] {
+          font-size: 17px !important;
+        }
+        .tile-inner [style*="font-size: 26px"] {
+          font-size: 16px !important;
+        }
+        .tile-inner [style*="font-size: 24px"] {
+          font-size: 15px !important;
+        }
+        .tile-inner [style*="font-size: 18px"] {
+          font-size: 13px !important;
+        }
+        .tile-inner [style*="font-size: 17px"] {
+          font-size: 12px !important;
+        }
+        .tile-inner [style*="font-size: 16px"] {
+          font-size: 12px !important;
+        }
+        .greeting-title {
+          font-size: 24px !important;
+        }
+        .greeting-sub {
+          font-size: 13px !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- DATA embedded from data.json -->
+    <script>
+      var DATA = null;
+    </script>
+
+    <div id="app">
+      <div id="track">
+        <!-- PAGE 0: IDLE -->
+        <div class="page" id="idle">
+          <!-- fullscreen bg images — injected by JS -->
+          <div class="idle-overlay"></div>
+          <div class="idle-center">
+            <div class="idle-wordmark">SALIN-LAHI</div>
+            <div class="idle-tap">Tap to begin</div>
+          </div>
+        </div>
+
+        <!-- PAGE 1: DASHBOARD -->
+        <div class="page" id="dashboard">
+          <div class="greeting-title">Mabuhay!</div>
+          <div class="greeting-sub">
+            Explore the culture and heritage of Olongapo City.
+          </div>
+
+          <div class="bento-grid">
+            <!-- CITY OVERVIEW 8×4 -->
+            <div class="tile t-city" id="btn-city">
+              <div
+                class="tile-deco"
+                style="
+                  width: 380px;
+                  height: 380px;
+                  background: rgba(189, 0, 26, 0.1);
+                  right: -60px;
+                  bottom: -60px;
+                "
+              ></div>
+              <div class="tile-inner">
+                <div>
+                  <span class="tile-tag">Explore</span>
+                  <div
+                    class="tile-title"
+                    style="
+                      font-size: clamp(36px, 4.5vw, 54px);
+                      color: #1b1c1b;
+                      margin-top: 12px;
+                    "
+                  >
+                    City Overview
+                  </div>
+                  <div
+                    class="tile-desc"
+                    style="
+                      font-size: 18px;
+                      color: #5d3f3c;
+                      opacity: 0.85;
+                      margin-top: 8px;
+                      max-width: 380px;
+                      line-height: 1.55;
+                    "
+                    id="city-preview"
+                  >
+                    Facts, map &amp; history of Olongapo City.
+                  </div>
+                </div>
+                <button
+                  class="tile-btn"
+                  style="
+                    background: #bd001a;
+                    color: #fff;
+                    box-shadow: 0 4px 0 #930011;
+                  "
+                >
+                  Open Explorer
+                </button>
+              </div>
+            </div>
+
+            <!-- HERITAGE GUIDE 4×3 -->
+            <div class="tile t-guide" id="btn-guide">
+              <div class="tile-inner">
+                <div
+                  style="
+                    width: 52px;
+                    height: 52px;
+                    border-radius: 14px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border: 1px solid rgba(255, 255, 255, 0.35);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <span
+                    class="material-symbols-outlined fill-icon"
+                    style="color: #fff; font-size: 28px"
+                    >menu_book</span
+                  >
+                </div>
+                <div>
+                  <div
+                    class="tile-title"
+                    style="font-size: 30px; color: #fff; margin-bottom: 6px"
+                  >
+                    Heritage Guide
+                  </div>
+                  <div
+                    class="tile-desc"
+                    style="
+                      font-size: 17px;
+                      color: rgba(255, 255, 255, 0.8);
+                      line-height: 1.5;
+                    "
+                    id="guide-preview"
+                  >
+                    9 cultural topics — from the Aeta to the Smart City era.
+                  </div>
+                </div>
+                <button
+                  class="tile-btn"
+                  style="
+                    background: #fff;
+                    color: #bd001a;
+                    width: 100%;
+                    text-align: center;
+                    display: block;
+                  "
+                >
+                  Start Learning
+                </button>
+              </div>
+            </div>
+
+            <!-- TAKE QUIZ 4×3 -->
+            <div class="tile t-quiz" id="btn-quiz">
+              <div class="tile-inner">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                  "
+                >
+                  <div
+                    style="
+                      width: 52px;
+                      height: 52px;
+                      border-radius: 14px;
+                      background: rgba(255, 255, 255, 0.2);
+                      border: 1px solid rgba(255, 255, 255, 0.35);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <span
+                      class="material-symbols-outlined fill-icon"
+                      style="color: #fff; font-size: 28px"
+                      >quiz</span
+                    >
+                  </div>
+                  <div style="display: flex">
+                    <div
+                      style="
+                        width: 26px;
+                        height: 26px;
+                        border-radius: 50%;
+                        background: #dbdad8;
+                        border: 2px solid #4b6edd;
+                      "
+                    ></div>
+                    <div
+                      style="
+                        width: 26px;
+                        height: 26px;
+                        border-radius: 50%;
+                        background: #dbdad8;
+                        border: 2px solid #4b6edd;
+                        margin-left: -8px;
+                      "
+                    ></div>
+                    <div
+                      style="
+                        width: 26px;
+                        height: 26px;
+                        border-radius: 50%;
+                        background: #fff;
+                        border: 2px solid #4b6edd;
+                        margin-left: -8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-family: &quot;Space Grotesk&quot;, sans-serif;
+                        font-weight: 700;
+                        font-size: 9px;
+                        color: #4b6edd;
+                      "
+                      id="quiz-player-count"
+                    >
+                      +0
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div
+                    class="tile-title"
+                    style="font-size: 30px; color: #fff; margin-bottom: 6px"
+                  >
+                    Take Quiz
+                  </div>
+                  <div
+                    class="tile-desc"
+                    style="
+                      font-size: 17px;
+                      color: rgba(255, 255, 255, 0.8);
+                      line-height: 1.5;
+                    "
+                  >
+                    Test your knowledge on Olongapo's history and culture.
+                  </div>
+                </div>
+                <button
+                  class="tile-btn"
+                  style="
+                    background: #fcd400;
+                    color: #6e5c00;
+                    width: 100%;
+                    text-align: center;
+                    display: block;
+                    box-shadow: 0 4px 0 #b29400;
+                  "
+                >
+                  Play Now
+                </button>
+              </div>
+            </div>
+
+            <!-- TIMELINE 4×2 -->
+            <div class="tile t-timeline" id="btn-timeline">
+              <img
+                src="https://lh3.googleusercontent.com/aida/AP1WRLuemJwB8eqEbvW1ONKT_uuhzXyOAFskKG7ydVHMUCt4-JsJ-fcdZFkvm-BHOVa67CF28jifSopir-6-afcDp2eDHSq0rxcDMh1l9MyMoOrg3OfVnenZnMf56WHx9YbiHmKIFXDY8WK8Ff3Ssb50j1wNyTLG472JQ1UiNxtvmDnWVI0LwY_3wbrPzN3vtRL-sNp04LnOqk0u3ZoQQ5aTVI5lil5TlcTUT7N0ewzSpCDpyZwJCThtyfLcKVM"
+                style="
+                  position: absolute;
+                  inset: 0;
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  opacity: 0.45;
+                "
+                alt=""
+              />
+              <div
+                style="
+                  position: absolute;
+                  inset: 0;
+                  background: linear-gradient(to top, #2d7d9a 30%, transparent);
+                "
+              ></div>
+              <div
+                style="
+                  position: absolute;
+                  bottom: 0;
+                  left: 0;
+                  right: 0;
+                  padding: 20px;
+                "
+              >
+                <div class="tile-title" style="font-size: 26px; color: #fff">
+                  Timeline
+                </div>
+                <div
+                  style="
+                    font-family: &quot;Space Grotesk&quot;, sans-serif;
+                    font-weight: 700;
+                    font-size: 14px;
+                    letter-spacing: 0.12em;
+                    text-transform: uppercase;
+                    color: rgba(255, 255, 255, 0.7);
+                    margin-top: 3px;
+                  "
+                >
+                  Photo History
+                </div>
+              </div>
+            </div>
+
+            <!-- LEADERBOARD 4×2 -->
+            <div class="tile t-lb" id="btn-lb">
+              <div
+                class="tile-inner"
+                style="flex-direction: row; align-items: center; gap: 16px"
+              >
+                <div
+                  style="
+                    width: 54px;
+                    height: 54px;
+                    border-radius: 14px;
+                    background: #fff;
+                    border: 1px solid #a8a9ad;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                  "
+                >
+                  <span
+                    class="material-symbols-outlined fill-icon"
+                    style="color: #705d00; font-size: 30px"
+                    >trophy</span
+                  >
+                </div>
+                <div style="flex: 1">
+                  <div
+                    class="tile-title"
+                    style="font-size: 26px; color: #1b1c1b"
+                  >
+                    Leaderboard
+                  </div>
+                  <div
+                    class="tile-desc"
+                    style="font-size: 16px; color: #5d3f3c; margin-top: 3px"
+                    id="lb-preview"
+                  >
+                    Top scores
+                  </div>
+                </div>
+                <span
+                  class="material-symbols-outlined"
+                  style="color: #926e6b; font-size: 24px"
+                  >chevron_right</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Back to Idle + QR buttons -->
+          <div
+            style="
+              flex-shrink: 0;
+              display: flex;
+              justify-content: flex-end;
+              align-items: center;
+              gap: 10px;
+              padding: 6px 0 0;
+            "
+          >
+            <!-- Scan QR button -->
+            <button
+              id="btn-qr"
+              style="
+                background: #fff;
+                border: 1px solid #a8a9ad;
+                color: #0038a8;
+                border-radius: 9999px;
+                padding: 10px 22px;
+                font-family: &quot;Space Grotesk&quot;, sans-serif;
+                font-weight: 700;
+                font-size: 13px;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                cursor: pointer;
+                box-shadow: 0 4px 0 #d4d4d4;
+                transition: all 0.15s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+              onclick="
+                document
+                  .getElementById('qr-modal-backdrop')
+                  .classList.add('open')
+              "
+            >
+              <span
+                class="material-symbols-outlined"
+                style="font-size: 18px; color: #0038a8"
+                >qr_code_scanner</span
+              >
+              Scan QR
+            </button>
+
+            <button
+              id="btn-go-idle"
+              style="
+                background: #fff;
+                border: 1px solid #a8a9ad;
+                color: #926e6b;
+                border-radius: 9999px;
+                padding: 10px 22px;
+                font-family: &quot;Space Grotesk&quot;, sans-serif;
+                font-weight: 700;
+                font-size: 13px;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                cursor: pointer;
+                box-shadow: 0 4px 0 #d4d4d4;
+                transition: all 0.15s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+            >
+              <span style="font-size: 16px">⏻</span> Sleep / Idle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QR CODE MODAL -->
+    <div
+      id="qr-modal-backdrop"
+      onclick="if (event.target === this) this.classList.remove('open');"
+    >
+      <div id="qr-modal">
+        <div class="qr-modal-title">Scan to Visit Website</div>
+        <div class="qr-modal-sub">
+          Point your camera at the QR code<br />to access the SALIN-LAHI
+          website.
+        </div>
+        <div class="qr-img-wrap">
+          <img src="./qr-code.png" alt="QR Code for SALIN-LAHI website" />
+        </div>
+        <button
+          class="qr-close-btn"
+          onclick="
+            document
+              .getElementById('qr-modal-backdrop')
+              .classList.remove('open')
+          "
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- CITY OVERVIEW OVERLAY -->
+    <div class="overlay" id="ov-city">
+      <div class="ov-topbar">
+        <div class="ov-topbar-left">
+          <div class="ov-icon" style="background: #fcd400">🏙️</div>
+          <span class="ov-topbar-title">City Overview</span>
+        </div>
+        <button class="back-btn" onclick="closeOverlay('ov-city')">
+          ← Back
+        </button>
+      </div>
+      <div class="ov-scrollable" id="city-body"></div>
+    </div>
+
+    <!-- HERITAGE GUIDE OVERLAY -->
+    <div class="overlay" id="ov-guide">
+      <div class="ov-topbar">
+        <div class="ov-topbar-left">
+          <div class="ov-icon" style="background: #e61e2a">🏛️</div>
+          <span class="ov-topbar-title">Heritage Guide</span>
+        </div>
+        <button class="back-btn" onclick="closeOverlay('ov-guide')">
+          ← Back
+        </button>
+      </div>
+      <div class="guide-intro">
+        Tap any topic to read &amp; listen. The
+        <strong
+          style="
+            color: #bd001a;
+            font-family: &quot;Bricolage Grotesque&quot;, sans-serif;
+          "
+          >SALIN-LAHI Rover</strong
+        >
+        will navigate to that station.
+      </div>
+      <div class="ov-scrollable">
+        <div class="guide-grid" id="guide-body"></div>
+      </div>
+    </div>
+
+    <!-- DETAIL OVERLAY -->
+    <div class="overlay" id="ov-detail">
+      <div class="ov-topbar">
+        <div class="ov-topbar-left">
+          <div class="ov-icon" style="background: #4b6edd">📖</div>
+          <span class="ov-topbar-title" id="detail-topbar-title"></span>
+        </div>
+        <button class="back-btn" onclick="goBack()">← Guide</button>
+      </div>
+      <div class="ov-scrollable">
+        <div class="detail-hero" id="detail-hero">
+          <img id="detail-img" src="" alt="" />
+          <div class="detail-hero-grad"></div>
+          <div class="detail-hero-text">
+            <div class="detail-station" id="detail-station"></div>
+            <div class="detail-title" id="detail-title"></div>
+            <div class="detail-caption" id="detail-caption"></div>
+          </div>
+        </div>
+        <div class="detail-pad">
+          <div class="tts-row">
+            <button class="tts-play" id="tts-play">▶ Listen</button>
+            <button class="tts-stop" id="tts-stop" style="display: none">
+              ■ Stop
+            </button>
+            <span class="tts-stat" id="tts-status"></span>
+          </div>
+          <div class="detail-text" id="detail-text"></div>
+          <div class="quiz-cta">
+            <div class="quiz-cta-left">
+              <div class="quiz-cta-emoji">🧠</div>
+              <div>
+                <div class="quiz-cta-title">Ready to be quizzed?</div>
+                <div class="quiz-cta-sub">Test what you just learned</div>
+              </div>
+            </div>
+            <button class="quiz-cta-btn" id="detail-quiz-btn">
+              Start Quiz →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ OVERLAY -->
+    <div class="overlay" id="ov-quiz">
+      <div class="ov-topbar">
+        <div class="ov-topbar-left">
+          <div class="ov-icon" style="background: #bd001a">🧠</div>
+          <span class="ov-topbar-title">Cultural Quiz</span>
+        </div>
+        <button class="back-btn" id="quiz-back-btn">← Back</button>
+      </div>
+      <div class="ov-scrollable">
+        <div id="quiz-select" class="quiz-sel-pad">
+          <div class="quiz-sel-title">Choose a Topic</div>
+          <div class="quiz-topics-grid" id="quiz-select-btns"></div>
+        </div>
+        <div class="quiz-game" id="quiz-active">
+          <div class="q-prog-row">
+            <div class="q-prog-track">
+              <div class="q-prog-fill" id="q-fill"></div>
+            </div>
+            <div class="q-prog-txt" id="q-num">Q1 of 5</div>
+          </div>
+          <div class="q-chip" id="q-topic"></div>
+          <div class="q-question" id="q-text"></div>
+          <div class="q-opts-grid" id="q-opts"></div>
+          <div class="q-fb" id="q-fb"></div>
+          <button class="q-next-btn" id="q-next" style="display: none">
+            Next Question →
+          </button>
+        </div>
+        <div class="q-result" id="q-result">
+          <div class="result-emoji" id="r-emoji">🎉</div>
+          <div class="result-score" id="r-score"></div>
+          <div class="result-of">
+            out of <span id="r-total"></span> questions
+          </div>
+          <div class="result-msg" id="r-msg"></div>
+          <div class="result-form">
+            <span class="result-label">Your Name (optional)</span>
+            <input
+              class="result-input"
+              type="text"
+              id="v-name"
+              placeholder="e.g. Maria Santos"
+              maxlength="40"
+            />
+            <span class="result-label">Grade &amp; School</span>
+            <input
+              class="result-input"
+              type="text"
+              id="v-grade"
+              placeholder="e.g. Grade 8 — Olongapo NHS"
+              maxlength="50"
+            />
+            <button class="result-save" id="save-btn">🏆 Save My Score</button>
+            <button class="result-skip" id="skip-btn">
+              Skip &amp; go home
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD OVERLAY -->
+    <div class="overlay" id="ov-lb">
+      <div class="ov-topbar">
+        <div class="ov-topbar-left">
+          <div class="ov-icon" style="background: #fcd400">🏆</div>
+          <span class="ov-topbar-title">Leaderboard</span>
+        </div>
+        <button class="back-btn" onclick="closeOverlay('ov-lb')">← Back</button>
+      </div>
+      <div
+        class="lb-head"
+        style="
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 16px;
+        "
+      >
+        <div>
+          <h2>🏆 Top Visitors</h2>
+          <p>Quiz scores across all heritage topics</p>
+        </div>
+        <button
+          id="clear-lb-btn"
+          style="
+            flex-shrink: 0;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid #a8a9ad;
+            color: #bd001a;
+            border-radius: 9999px;
+            padding: 10px 20px;
+            font-family: &quot;Space Grotesk&quot;, sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #d4d4d4;
+            transition: all 0.15s;
+          "
+        >
+          🗑 Clear All
+        </button>
+      </div>
+      <div class="lb-filters" id="lb-filters"></div>
+      <div class="ov-scrollable">
+        <table class="lb-tbl">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Grade</th>
+              <th>Topic</th>
+              <th>Score</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="lb-rows"></tbody>
+        </table>
+        <div class="lb-empty" id="lb-empty" style="display: none">
+          <div style="font-size: 48px; margin-bottom: 12px">🏺</div>
+          No scores yet. Take the quiz!
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE OVERLAY -->
+    <div class="overlay" id="ov-timeline">
+      <div class="ov-topbar">
+        <div class="ov-topbar-left">
+          <div class="ov-icon" style="background: #2e54c2">📜</div>
+          <span class="ov-topbar-title">History Timeline</span>
+        </div>
+        <button class="back-btn" onclick="closeOverlay('ov-timeline')">
+          ← Back
+        </button>
+      </div>
+      <div class="tl-hero">
+        <div class="tl-hero-title">Olongapo City</div>
+        <div class="tl-hero-sub">From Gently Sloping Shore to Smart City</div>
+        <span class="tl-years-badge">PRE-COLONIAL → PRESENT</span>
+      </div>
+      <div class="ov-scrollable">
+        <div class="tl-spine-wrap">
+          <div class="tl-spine"></div>
+          <div class="tl-events" id="tl-events"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirm-modal">
+      <div class="confirm-box">
+        <div class="confirm-icon">🗑️</div>
+        <div class="confirm-title">Clear Leaderboard?</div>
+        <div class="confirm-msg">
+          All quiz scores will be permanently deleted. This cannot be undone.
+        </div>
+        <div class="confirm-btns">
+          <button class="confirm-ok" id="confirm-ok-btn">Yes, clear all</button>
+          <button class="confirm-cancel" id="confirm-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" style="color: #fff"></div>
+
+    <script>
+      // ── State ──
+      var DATA = null;
+      var cur = 0;
+      var quizState = {};
+      var lbFilter = "all";
+      var ttsChunks = [],
+        ttsIdx = 0,
+        ttsUtt = null;
+      var currentSection = null;
+
+      // ── Slider ──
+      var track = document.getElementById("track");
+      function goTo(idx, animate) {
+        cur = idx;
+        if (animate === false) track.style.transition = "none";
+        track.style.transform = "translateX(-" + cur * 100 + "vw)";
+        if (animate === false)
+          requestAnimationFrame(function () {
+            track.style.transition = "";
+          });
+        if (cur === 1) {
+          startIdleTimer();
+        } else {
+          clearTimeout(idleTimer);
+        }
+      }
+      document.getElementById("idle").addEventListener("click", function () {
+        goTo(1);
+      });
+
+      // Swipe idle ↔ dashboard
+      var sx = 0,
+        sy = 0;
+      document.addEventListener(
+        "touchstart",
+        function (e) {
+          sx = e.touches[0].clientX;
+          sy = e.touches[0].clientY;
+        },
+        { passive: true },
+      );
+      document.addEventListener(
+        "touchend",
+        function (e) {
+          if (document.querySelector(".overlay.open")) return;
+          var dx = e.changedTouches[0].clientX - sx;
+          var dy = e.changedTouches[0].clientY - sy;
+          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
+            if (dx < 0 && cur === 0) goTo(1);
+            if (dx > 0 && cur === 1) goTo(0);
+          }
+        },
+        { passive: true },
+      );
+
+      // ── Overlay helpers ──
+      function openOverlay(id) {
+        document.getElementById(id).classList.add("open");
+      }
+      function closeOverlay(id) {
+        ttsStop();
+        document.getElementById(id).classList.remove("open");
+      }
+      function goBack() {
+        ttsStop();
+        closeOverlay("ov-detail");
+        openOverlay("ov-guide");
+      }
+
+      // ── Toast ──
+      function showToast(msg) {
+        var t = document.getElementById("toast");
+        t.textContent = msg;
+        t.style.display = "block";
+        setTimeout(function () {
+          t.style.display = "none";
+        }, 3000);
+      }
+
+      // ── Idle auto-return 60s ──
+      var idleTimer;
+      var IDLE_TIMEOUT = 60000; // 60 seconds
+
+      var ttsActive = false; // tracks whether TTS is currently speaking
+
+      function resetIdle() {
+        clearTimeout(idleTimer);
+        if (ttsActive) return; // don't start countdown while audio is playing
+        idleTimer = setTimeout(function () {
+          document.querySelectorAll(".overlay.open").forEach(function (ov) {
+            ov.classList.remove("open");
+          });
+          ttsActive = false; // prevent resumeIdleTimer loop when ttsStop fires
+          ttsStop();
+          goTo(0);
+        }, IDLE_TIMEOUT);
+      }
+
+      function pauseIdleTimer() {
+        // called when TTS starts — stop the countdown
+        ttsActive = true;
+        clearTimeout(idleTimer);
+      }
+
+      function resumeIdleTimer() {
+        // called when TTS ends/stops — restart the countdown
+        ttsActive = false;
+        resetIdle();
+      }
+
+      // reset on any user interaction
+      document.addEventListener("touchstart", resetIdle, { passive: true });
+      document.addEventListener("mousedown", resetIdle);
+      document.addEventListener("touchend", resetIdle, { passive: true });
+
+      // start the timer immediately when on dashboard
+      function startIdleTimer() {
+        resetIdle();
+      }
+
+      // ── Load data.json ──
+      fetch("data.json")
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (d) {
+          DATA = d;
+          init();
+        })
+        .catch(function () {
+          alert(
+            "Could not load data.json. Make sure both files are in the same folder.",
+          );
+        });
+
+      function init() {
+        buildCityPreview();
+        buildGuidePreview();
+        buildCity();
+        buildGuide();
+        buildTimeline();
+        buildQuizSelect();
+        updateLeaderboardPreview();
+        wireButtons();
+      }
+
+      function g(id) {
+        return document.getElementById(id);
+      }
+
+      // ── Wire buttons ──
+      function wireButtons() {
+        g("btn-city").onclick = function () {
+          openOverlay("ov-city");
+        };
+        g("btn-guide").onclick = function () {
+          openOverlay("ov-guide");
+        };
+        g("btn-quiz").onclick = function () {
+          resetQuizSelect();
+          openOverlay("ov-quiz");
+        };
+        g("btn-timeline").onclick = function () {
+          openOverlay("ov-timeline");
+        };
+        g("btn-lb").onclick = function () {
+          buildLeaderboard();
+          openOverlay("ov-lb");
+        };
+        g("tts-play").onclick = ttsPlay;
+        g("tts-stop").onclick = ttsStop;
+        g("q-next").onclick = nextQ;
+        g("save-btn").onclick = saveScore;
+        g("skip-btn").onclick = function () {
+          closeOverlay("ov-quiz");
+        };
+        g("quiz-back-btn").onclick = function () {
+          closeOverlay("ov-quiz");
+        };
+        g("btn-go-idle").onclick = function () {
+          clearTimeout(idleTimer);
+          goTo(0);
+        };
+        g("clear-lb-btn").onclick = function () {
+          document.getElementById("confirm-modal").classList.add("open");
+        };
+        g("confirm-ok-btn").onclick = function () {
+          document.getElementById("confirm-modal").classList.remove("open");
+          localStorage.removeItem("salinlahi_v2");
+          buildLeaderboard();
+          updateLeaderboardPreview();
+          showToast("Leaderboard cleared.");
+        };
+        g("confirm-cancel-btn").onclick = function () {
+          document.getElementById("confirm-modal").classList.remove("open");
+        };
+      }
+
+      // ── City preview on dashboard tile ──
+      function buildCityPreview() {
+        var c = DATA.city;
+        g("city-preview").textContent =
+          c.province + " · " + c.region + " · Pop. " + c.population;
+      }
+
+      function buildGuidePreview() {
+        g("guide-preview").textContent =
+          DATA.sections.length +
+          " cultural topics — from the Aeta to the Smart City era.";
+      }
+
+      // ── City Overview ──
+      function buildCity() {
+        var c = DATA.city;
+        var html = "";
+        html +=
+          '<div class="city-hero"><img src=".\\ulo-ng-apo.jpg"' +
+          c.photo_url +
+          '" alt="' +
+          c.name +
+          '" onerror="this.src=\'\'">';
+        html +=
+          '<div class="city-hero-overlay"><div class="city-hero-title">' +
+          c.name +
+          "</div>";
+        html +=
+          '<div class="city-hero-sub">' +
+          c.province +
+          " &middot; " +
+          c.region +
+          "</div></div></div>";
+        html += '<div class="city-pad">';
+        html += '<div class="stat-row">';
+        html +=
+          '<div class="stat-box" style="background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3)"><div class="stat-box-val" style="color:#F5A623">' +
+          c.population +
+          '</div><div class="stat-box-lbl">Population</div></div>';
+        html +=
+          '<div class="stat-box" style="background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3)"><div class="stat-box-val" style="color:#F5A623">' +
+          c.barangays +
+          '</div><div class="stat-box-lbl">Barangays</div></div>';
+        html +=
+          '<div class="stat-box" style="background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3)"><div class="stat-box-val" style="color:#F5A623">1966</div><div class="stat-box-lbl">City Founded</div></div>';
+        html += "</div>";
+        html +=
+          '<div class="map-box"><img src="' +
+          c.map_photo +
+          '" alt="Map" onerror="this.style.display=\'none\'"><div class="map-box-lbl">📍 Olongapo City, Zambales — Central Luzon, Philippines</div></div>';
+        html += '<div class="city-desc">' + c.description + "</div>";
+        html += '<div class="facts-box">';
+        html += '<div class="facts-head">Quick Facts</div>';
+        var facts = [
+          ["Founded", c.founded],
+          ["Province", c.province],
+          ["Region", c.region],
+          ["Area", c.area],
+          ["Mayor", c.mayor],
+        ];
+        facts.forEach(function (f) {
+          html +=
+            '<div class="fact-row"><span class="fact-k">' +
+            f[0] +
+            '</span><span class="fact-v">' +
+            f[1] +
+            "</span></div>";
+        });
+        html += "</div></div>";
+        g("city-body").innerHTML = html;
+      }
+
+      // ── Heritage Guide ──
+      var COLORS = [
+        "#38BDF8",
+        "#F5A623",
+        "#EF6C5C",
+        "#8B5CF6",
+        "#22C55E",
+        "#06B6A4",
+        "#F472B6",
+        "#FB923C",
+        "#A3E635",
+      ];
+      function buildGuide() {
+        var html = "";
+        DATA.sections.forEach(function (s, i) {
+          var c = COLORS[i % COLORS.length];
+          var preview = s.content.split("\n\n")[0].substring(0, 90) + "...";
+          html += '<div class="exp-card" data-id="' + s.id + '">';
+          html +=
+            '<div class="exp-card-stripe" style="background:' + c + '"></div>';
+          html += '<div class="exp-card-inner">';
+          html +=
+            '<div class="exp-card-icon" style="background:' +
+            c +
+            "22;color:" +
+            c +
+            '">' +
+            sectionEmoji(s.id) +
+            "</div>";
+          html += '<div class="exp-card-body">';
+          html +=
+            '<div class="exp-card-station" style="color:' +
+            c +
+            '">' +
+            s.station +
+            "</div>";
+          html += '<div class="exp-card-title">' + s.title + "</div>";
+          html += '<div class="exp-card-preview">' + preview + "</div>";
+          html += "</div></div>";
+          html +=
+            '<div class="exp-card-footer"><span class="exp-card-cta">Read More</span><span class="exp-card-arrow">›</span></div></div>';
+        });
+        g("guide-body").innerHTML = html;
+        g("guide-body")
+          .querySelectorAll(".exp-card")
+          .forEach(function (card) {
+            card.onclick = function () {
+              openSection(this.getAttribute("data-id"));
+            };
+          });
+      }
+
+      function sectionEmoji(id) {
+        var map = {
+          location: "🗺️",
+          aeta: "🏹",
+          history: "⛪",
+          navy: "⚓",
+          independence: "🕊️",
+          culture: "🎉",
+          demographics: "👥",
+          tourism: "🏖️",
+          smartcity: "🤖",
+        };
+        return map[id] || "📖";
+      }
+
+      function openSection(id) {
+        var s = DATA.sections.find(function (x) {
+          return x.id === id;
+        });
+        currentSection = s;
+        g("detail-topbar-title").textContent = s.title;
+        g("detail-station").textContent = s.station;
+        g("detail-title").textContent = s.title;
+        g("detail-caption").textContent = s.photo_caption || "";
+        var img = g("detail-img");
+        img.src = s.photo_url || "";
+        img.onerror = function () {
+          g("detail-hero").style.display = "none";
+        };
+        g("detail-hero").style.display = "";
+        var paras = s.content.split("\n\n"),
+          h = "";
+        paras.forEach(function (p) {
+          if (p.trim()) h += "<p>" + p.trim() + "</p>";
+        });
+        g("detail-text").innerHTML = h;
+        g("tts-play").style.display = "inline-flex";
+        g("tts-stop").style.display = "none";
+        g("tts-status").textContent = "";
+        g("detail-quiz-btn").onclick = function () {
+          closeOverlay("ov-detail");
+          resetQuizSelect();
+          startQuiz(s.id);
+          openOverlay("ov-quiz");
+        };
+        closeOverlay("ov-guide");
+        openOverlay("ov-detail");
+        showToast("Station: " + s.station);
+      }
+
+      // ── TTS ──
+      function ttsPlay() {
+        if (!window.speechSynthesis) {
+          alert("Text-to-speech not supported on this device.");
+          return;
+        }
+        pauseIdleTimer(); // pause idle countdown while listening
+        window.speechSynthesis.cancel();
+        var raw = g("detail-text").innerText || g("detail-text").textContent;
+        if (!raw.trim()) return;
+        g("tts-play").style.display = "none";
+        g("tts-stop").style.display = "inline-flex";
+        g("tts-status").textContent = "Reading aloud...";
+        var sents = raw.match(/[^.!?\n]+[.!?\n]*/g) || [raw];
+        ttsChunks = [];
+        var buf = "";
+        sents.forEach(function (s, i) {
+          buf += s;
+          if (buf.length > 180 || i === sents.length - 1) {
+            if (buf.trim()) ttsChunks.push(buf.trim());
+            buf = "";
+          }
+        });
+        ttsIdx = 0;
+        function next() {
+          if (ttsIdx >= ttsChunks.length) {
+            ttsStop();
+            return;
+          }
+          ttsUtt = new SpeechSynthesisUtterance(ttsChunks[ttsIdx]);
+          ttsUtt.lang = "en-US";
+          ttsUtt.rate = 0.88;
+          ttsUtt.volume = 1.0;
+          var vv = window.speechSynthesis.getVoices(),
+            pick = null;
+          for (var i = 0; i < vv.length; i++) {
+            if (!vv[i].lang || vv[i].lang.indexOf("en") !== 0) continue;
+            if (!pick) pick = vv[i];
+            if (vv[i].name.indexOf("Google US") >= 0) {
+              pick = vv[i];
+              break;
+            }
+            if (vv[i].name.indexOf("Google") >= 0) pick = vv[i];
+          }
+          if (pick) ttsUtt.voice = pick;
+          ttsIdx++;
+          ttsUtt.onend = function () {
+            setTimeout(next, 80);
+          };
+          ttsUtt.onerror = function (e) {
+            if (e.error !== "interrupted") ttsStop();
+          };
+          window.speechSynthesis.speak(ttsUtt);
+        }
+        if (window.speechSynthesis.getVoices().length > 0) {
+          next();
+        } else {
+          window.speechSynthesis.onvoiceschanged = function () {
+            window.speechSynthesis.onvoiceschanged = null;
+            next();
+          };
+          setTimeout(function () {
+            if (ttsIdx === 0) next();
+          }, 600);
+        }
+      }
+      function ttsStop() {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        ttsChunks = [];
+        ttsIdx = 9999;
+        var p = g("tts-play"),
+          s = g("tts-stop"),
+          st = g("tts-status");
+        if (p) p.style.display = "inline-flex";
+        if (s) s.style.display = "none";
+        if (st) st.textContent = "";
+        // only resume idle timer if we're not already going to idle
+        if (ttsActive) resumeIdleTimer();
+      }
+
+      // ── Quiz ──
+      function buildQuizSelect() {
+        var h = "";
+        DATA.sections.forEach(function (s) {
+          h +=
+            '<button class="quiz-topic-btn" data-id="' +
+            s.id +
+            '" style="border-color:' +
+            s.color +
+            '44">';
+          h +=
+            '<div class="quiz-topic-name" style="color:' +
+            s.color +
+            '">' +
+            sectionEmoji(s.id) +
+            " " +
+            s.title +
+            "</div>";
+          h +=
+            '<div class="quiz-topic-count">' +
+            s.questions.length +
+            " questions</div></button>";
+        });
+        g("quiz-select-btns").innerHTML = h;
+        g("quiz-select-btns")
+          .querySelectorAll(".quiz-topic-btn")
+          .forEach(function (b) {
+            b.onclick = function () {
+              startQuiz(this.getAttribute("data-id"));
+            };
+          });
+      }
+
+      function resetQuizSelect() {
+        g("quiz-select").style.display = "block";
+        g("quiz-active").style.display = "none";
+        g("q-result").style.display = "none";
+      }
+
+      function startQuiz(id) {
+        var s = DATA.sections.find(function (x) {
+          return x.id === id;
+        });
+        quizState = {
+          section: s,
+          qs: shuffle(s.questions.slice()),
+          cur: 0,
+          score: 0,
+          answers: [],
+        };
+        g("quiz-select").style.display = "none";
+        g("q-result").style.display = "none";
+        g("quiz-active").style.display = "flex";
+        g("q-topic").textContent = s.title;
+        // chip styled via CSS
+        renderQ();
+      }
+
+      function renderQ() {
+        var q = quizState.qs[quizState.cur],
+          total = quizState.qs.length;
+        g("q-fill").style.width = (quizState.cur / total) * 100 + "%";
+        g("q-num").textContent =
+          "Question " + (quizState.cur + 1) + " of " + total;
+        g("q-text").textContent = q.q;
+        g("q-fb").textContent = "";
+        g("q-fb").className = "q-fb";
+        g("q-next").style.display = "none";
+        var h = "";
+        q.opts.forEach(function (o, i) {
+          h += '<button class="q-opt" data-i="' + i + '">' + o + "</button>";
+        });
+        g("q-opts").innerHTML = h;
+        g("q-opts")
+          .querySelectorAll(".q-opt")
+          .forEach(function (b) {
+            b.onclick = function () {
+              answerQ(parseInt(this.getAttribute("data-i")));
+            };
+          });
+      }
+
+      function answerQ(idx) {
+        var q = quizState.qs[quizState.cur];
+        var btns = document.querySelectorAll(".q-opt");
+        btns.forEach(function (b) {
+          b.classList.add("disabled");
+        });
+        var ok = idx === q.ans;
+        btns[idx].classList.add(ok ? "correct" : "wrong");
+        if (!ok) btns[q.ans].classList.add("correct");
+        quizState.answers.push({
+          q: q.q,
+          correct: ok,
+          chosen: idx,
+          expected: q.ans,
+        });
+        var fb = g("q-fb");
+        if (ok) {
+          fb.textContent = "✓ Correct! Well done.";
+          fb.className = "q-fb ok";
+          quizState.score++;
+        } else {
+          fb.textContent = "✗ Correct answer: " + q.opts[q.ans];
+          fb.className = "q-fb bad";
+        }
+        g("q-next").style.display = "block";
+      }
+
+      function nextQ() {
+        quizState.cur++;
+        if (quizState.cur >= quizState.qs.length) showResult();
+        else renderQ();
+      }
+
+      function showResult() {
+        g("quiz-active").style.display = "none";
+        g("q-result").style.display = "block";
+        var s = quizState.score,
+          t = quizState.qs.length,
+          p = Math.round((s / t) * 100);
+        g("r-score").textContent = s;
+        g("r-total").textContent = t;
+        g("r-emoji").textContent = p >= 80 ? "🏆" : p >= 60 ? "👍" : "📚";
+        g("r-msg").textContent =
+          p >= 80
+            ? "Excellent! You know your Olongapo heritage!"
+            : p >= 60
+              ? "Good job! Keep exploring our culture."
+              : "Keep learning! SALIN-LAHI has more to share.";
+        g("v-name").value = "";
+        g("v-grade").value = "";
+      }
+
+      function saveScore() {
+        var name = g("v-name").value.trim() || "Anonymous";
+        var grade = g("v-grade").value.trim() || "-";
+        var now = new Date(),
+          scores = getScores();
+        scores.push({
+          id: Date.now(),
+          name: name,
+          grade: grade,
+          topic: quizState.section.title,
+          topicId: quizState.section.id,
+          score: quizState.score,
+          total: quizState.qs.length,
+          pct: Math.round((quizState.score / quizState.qs.length) * 100),
+          answers: quizState.answers,
+          date: now.toLocaleDateString("en-PH", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+          timestamp: now.getTime(),
+        });
+        saveScores(scores);
+        closeOverlay("ov-quiz");
+        buildLeaderboard();
+        openOverlay("ov-lb");
+        updateLeaderboardPreview();
+      }
+
+      // ── Leaderboard ──
+      function updateLeaderboardPreview() {
+        var scores = getScores();
+        g("lb-preview").textContent =
+          scores.length > 0
+            ? scores.length + " scores recorded"
+            : "No scores yet";
+        g("quiz-player-count").textContent = "+" + scores.length;
+      }
+
+      function buildLeaderboard() {
+        var ids = ["all"].concat(
+          DATA.sections.map(function (s) {
+            return s.id;
+          }),
+        );
+        var h = "";
+        ids.forEach(function (id) {
+          var label =
+            id === "all"
+              ? "All"
+              : (
+                  DATA.sections.find(function (s) {
+                    return s.id === id;
+                  }) || { title: id }
+                ).title;
+          h +=
+            '<button class="lb-filter-btn' +
+            (lbFilter === id ? " on" : "") +
+            '" data-f="' +
+            id +
+            '">' +
+            label +
+            "</button>";
+        });
+        g("lb-filters").innerHTML = h;
+        g("lb-filters")
+          .querySelectorAll(".lb-filter-btn")
+          .forEach(function (b) {
+            b.onclick = function () {
+              lbFilter = this.getAttribute("data-f");
+              buildLeaderboard();
+            };
+          });
+        var scores = getScores();
+        if (lbFilter !== "all")
+          scores = scores.filter(function (s) {
+            return s.topicId === lbFilter;
+          });
+        scores.sort(function (a, b) {
+          return b.pct - a.pct || b.score - a.score;
+        });
+        var empty = g("lb-empty"),
+          tb = g("lb-rows");
+        if (!scores.length) {
+          tb.innerHTML = "";
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+        h = "";
+        scores.slice(0, 20).forEach(function (s, i) {
+          var rc = i === 0 ? "r1" : i === 1 ? "r2" : i === 2 ? "r3" : "rn";
+          var medal =
+            i === 0 ? "1st" : i === 1 ? "2nd" : i === 2 ? "3rd" : i + 1 + "th";
+          h +=
+            '<tr><td><span class="rank-badge ' +
+            rc +
+            '">' +
+            medal +
+            "</span></td><td>" +
+            s.name +
+            "</td>";
+          h +=
+            '<td style="color:rgba(255,255,255,.4);font-size:12px">' +
+            s.grade +
+            "</td>";
+          h +=
+            '<td style="color:rgba(255,255,255,.5);font-size:12px">' +
+            s.topic +
+            "</td>";
+          h +=
+            '<td><span class="score-pill">' +
+            s.score +
+            "/" +
+            s.total +
+            " (" +
+            s.pct +
+            "%)</span></td>";
+          h +=
+            '<td style="color:rgba(255,255,255,.3);font-size:12px">' +
+            s.date +
+            "</td></tr>";
+        });
+        tb.innerHTML = h;
+      }
+
+      // ── Timeline ──
+      var TL_ITEMS = [
+        {
+          color: "#22C55E",
+          icon: "🏹",
+          year: "Before 1500s",
+          title: "Aeta Ancestral Domain",
+          sub: "The Gently Sloping Shore",
+          body: "Long before colonial intervention, the area was the ancestral domain of the Aeta people. In the Sambal language, the region was called 'olang-gapo' — meaning a 'gently sloping shore,' describing the natural coastal landscape.",
+          did: "The Legend of Ulo ng Apo: A wise chieftain named Apo led the village with fairness and justice. Rival tribes abducted and beheaded him. When his head was found impaled on a bamboo pole, the villagers rallied with 'Ulo ng Apo!' — a cry for unity that remains central to Olongapo's identity.",
+        },
+        {
+          color: "#EF6C5C",
+          icon: "⚓",
+          year: "1884 – 1898",
+          title: "Arsenal de Olongapo",
+          sub: "Spain's Pacific Stronghold",
+          body: "In 1884, King Alfonso XII declared Subic Bay as Spain's primary naval stronghold. Construction of the Arsenal de Olongapo began on March 8, 1885. Engineers dredged the harbor and built a drainage canal that turned the naval station into an island for defense.",
+          did: "The Spanish Gate (West Gate), built in 1885, remains the ONLY surviving 19th-century remnant of this era. It was declared a historical landmark in 2013.",
+        },
+        {
+          color: "#38BDF8",
+          icon: "🦅",
+          year: "1899 – 1941",
+          title: "US Naval Reservation",
+          sub: "Roosevelt's Pacific Base",
+          body: "After the Spanish-American War, the United States took control of the Philippines. In 1901, the US Navy established Naval Station Olongapo on the former Spanish arsenal grounds. The base expanded rapidly as America's strategic Pacific hub.",
+          did: "During this era, Olongapo was an independent enclave — a US naval reservation completely separate from Philippine civil governance, with its own police, courts, and infrastructure.",
+        },
+        {
+          color: "#F5A623",
+          icon: "🇵🇭",
+          year: "1945 – 1959",
+          title: "Post-War & Liberation",
+          sub: "Rising from the Ashes",
+          body: "Olongapo was devastated during World War II. Both the Japanese occupation (1941-1945) and the Allied liberation caused severe damage. After liberation, the US Navy rebuilt the base into one of the largest overseas American installations in the world.",
+          did: "On July 7, 1959, Olongapo was officially turned over to Philippine jurisdiction by the United States, ending decades of American direct administration.",
+        },
+        {
+          color: "#8B5CF6",
+          icon: "🏙️",
+          year: "February 9, 1966",
+          title: "City of Olongapo",
+          sub: "Chartered & Independent",
+          body: "Republic Act No. 4645, signed on February 9, 1966, officially converted Olongapo from a municipality into an independent chartered city. This date is celebrated annually as the city's founding anniversary.",
+          did: "Mayor Catalino Cahigan Ramos served as the first elected mayor of the newly chartered Olongapo City, overseeing its rapid urban development under the presence of the nearby US Naval Base.",
+        },
+        {
+          color: "#06B6A4",
+          icon: "🕊️",
+          year: "September 16, 1991",
+          title: "Treaty Rejection & Transformation",
+          sub: "The Base Closes, The City Rises",
+          body: "The Philippine Senate rejected the extension of the Military Bases Agreement in 1991, and the US Navy formally withdrew from Subic Bay in November 1992. The Subic Bay Metropolitan Authority (SBMA) was created to convert the base into a special economic zone.",
+          did: "The base closure was initially feared as an economic disaster. Instead, under SBMA leadership, Subic Bay Freeport became one of the most successful conversion stories in modern history — attracting billions in investment.",
+        },
+        {
+          color: "#A3E635",
+          icon: "🤖",
+          year: "2010s – Present",
+          title: "Smart City Era",
+          sub: "DOST Innovation & Digital Heritage",
+          body: "Olongapo City is now at the forefront of the DOST Smart City initiative. Projects like SALIN-LAHI use robotics and interactive technology to preserve and transmit indigenous and local heritage knowledge to younger generations through the Modern Library Movement.",
+          did: 'SALIN-LAHI (meaning "passing down heritage through generations") represents Olongapo\'s commitment: honoring its past while building a technologically advanced, culturally proud future.',
+        },
+      ];
+
+      function buildTimeline() {
+        var html = "";
+        TL_ITEMS.forEach(function (item) {
+          html += '<div class="tl-item">';
+          html +=
+            '<div class="tl-node" style="background:' +
+            item.color +
+            ";border-color:" +
+            item.color +
+            '"><span class="tl-node-icon">' +
+            item.icon +
+            "</span></div>";
+          html +=
+            '<div class="tl-card" style="border-left:4px solid ' +
+            item.color +
+            '">';
+          html +=
+            '<div class="tl-card-year" style="color:' +
+            item.color +
+            '">' +
+            item.year +
+            "</div>";
+          html += '<div class="tl-card-title">' + item.title + "</div>";
+          html += '<div class="tl-card-sub">' + item.sub + "</div>";
+          html += '<div class="tl-card-body">' + item.body + "</div>";
+          html +=
+            '<div class="tl-card-legend" style="border-color:' +
+            item.color +
+            "44;background:" +
+            item.color +
+            '0d">';
+          html +=
+            '<div class="tl-legend-label" style="color:' +
+            item.color +
+            '">📌 Did You Know?</div>';
+          html += '<div class="tl-legend-text">' + item.did + "</div></div>";
+          html += "</div></div>";
+        });
+        g("tl-events").innerHTML = html;
+      }
+
+      // ── Storage ──
+      function getScores() {
+        try {
+          return JSON.parse(localStorage.getItem("salinlahi_v2") || "[]");
+        } catch (e) {
+          return [];
+        }
+      }
+      function saveScores(a) {
+        localStorage.setItem("salinlahi_v2", JSON.stringify(a));
+      }
+
+      // ── Shuffle ──
+      function shuffle(a) {
+        for (var i = a.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = a[i];
+          a[i] = a[j];
+          a[j] = t;
+        }
+        return a;
+      }
+
+      // Init slider
+      goTo(0, false);
+
+      // ── Idle fullscreen crossfade ──
+      var IDLE_IMAGES = [
+        "./3-krus.jpg",
+        "./aeta3.jpg",
+        "./barretto.jpg",
+        "./kalaklan-lighthouse.jpg",
+        "./ulo-ng-apo.jpg",
+        "./triangle.jpg",
+        "./aeta1.jpg",
+        "./bagong-palengke.jpg",
+        "./kalapati.jpg",
+        "./marikit.jpg",
+      ];
+
+      var idleCur = 0;
+      var idleImgs = [];
+
+      function startIdleCycle() {
+        var container = document.getElementById("idle");
+        // create all img elements before the overlay
+        var overlay = container.querySelector(".idle-overlay");
+        IDLE_IMAGES.forEach(function (src, i) {
+          var img = document.createElement("img");
+          img.src = src;
+          img.alt = "";
+          img.className = "idle-bg";
+          if (i === 0) img.classList.add("visible");
+          container.insertBefore(img, overlay);
+          idleImgs.push(img);
+        });
+        // cycle every 3.5s — store handle so we can restart if needed
+        var idleCycleInterval = null;
+        function startCycleInterval() {
+          if (idleCycleInterval) clearInterval(idleCycleInterval);
+          idleCycleInterval = setInterval(function () {
+            idleImgs[idleCur].classList.remove("visible");
+            idleCur = (idleCur + 1) % idleImgs.length;
+            idleImgs[idleCur].classList.add("visible");
+          }, 3500);
+        }
+        startCycleInterval();
+        // restart interval when page becomes visible again (e.g. iPad wakes)
+        document.addEventListener("visibilitychange", function () {
+          if (!document.hidden) startCycleInterval();
+        });
+      }
+
+      startIdleCycle();
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js');
+      }
+    </script>
+  </body>
+</html>
