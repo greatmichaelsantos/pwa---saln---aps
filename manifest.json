@@ -3,7 +3,7 @@
   "short_name": "SALIN-LAHI",
   "description": "Explore the culture and heritage of Olongapo City.",
   "start_url": "./index.html",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "any",
   "background_color": "#ffffff",
   "theme_color": "#bd001a",
