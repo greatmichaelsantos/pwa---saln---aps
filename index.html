@@ -2999,6 +2999,16 @@
     <div id="toast" style="color: #fff"></div>
 
     <script>
+      function enterFullscreen() {
+  const el = document.documentElement;
+  const req = el.requestFullscreen 
+    || el.webkitRequestFullscreen 
+    || el.mozRequestFullScreen;
+  if (req) req.call(el);
+}
+
+// Trigger on the "Tap to Begin" interaction
+document.addEventListener('click', enterFullscreen, { once: true });
       // ── State ──
       var DATA = null;
       var cur = 0;
